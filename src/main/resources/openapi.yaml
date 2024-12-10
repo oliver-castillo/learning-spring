@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: API de Usuarios (Ejemplo)
+  version: mi-version-1
+  description: API para la gestión de usuarios
+  # Es posible especificar el contacto y la licencia de la API (opcional)
+#  contact:
+#    name: John Doe
+#    url: www.john-doe.com
+#    email: johndoe@email.com
+#  license:
+#    name: Apache 2.0
+#    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+# Definimos la ruta base de la API (se puede especificar el ambiente)
+servers:
+  - url: http://localhost:8080/api
+    description: Desarrollo
+  - url: http://localhost:8080/api
+    description: Certificación
+  - url: http://localhost:8080/api
+    description: Producción
+
+# Se pueden generar etiquetas para agrupar los endpoints
+tags:
+  - name: Usuarios
+    description: Operaciones sobre usuarios
+    externalDocs:
+      description: Más información
+      url: https://usuarios.example.com
+  - name: Productos
+    description: Operaciones sobre productos
+    externalDocs:
+      description: Más información
+      url: https://productos.example.com
+
+components:
+  schemas:
+    UsuarioResponse:
+      description: Esquema del cuerpo al devolver un usuario
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        apellido:
+          type: string
+        correo:
+          type: string
+    UsuarioEntity:
+      description: Esquema de la entidad usuario relacionado con la base de datos
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Identificador del usuario (Auto incremental)
+          example: 1
+        nombre:
+          type: string
+          description: Nombre del usuario
+          example: John
+        apellido:
+          type: string
+          description: Apellido del usuario
+          example: Doe
+        correo:
+          type: string
+          description: Email del usuario
+          example: johndoe@email.com
+        clave:
+          type: string
+          description: Contraseña del usuario
+          example: 123456
+      required:
+        - nombre
+        - apellido
+        - email
+        - password
+    UsuarioRequest:
+      description: Esquema del cuerpo de la petición para crear un usuario
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: Nombre del usuario
+          example: John
+        apellido:
+          type: string
+          description: Apellido del usuario
+          example: Doe
+        correo:
+          type: string
+          description: Email del usuario
+          example: johndoe@email.com
+        clave:
+          type: string
+          description: Contraseña del usuario
+          example: 123456
+      required:
+        - nombre
+        - apellido
+        - correo
+        - clave
+    OperacionResponse:
+      description: Esquema del cuerpo al devolver una operación
+      type: object
+      properties:
+        estado:
+          type: string
+          description: Estado de la operación
+        mensaje:
+          type: string
+          description: Mensaje de la operación
+
+
+paths:
+  /usuarios:
+    post:
+      tags:
+        - Usuarios
+      summary: Crear un usuario
+      description: Se crea un usuario en la base de datos
+      operationId: createUser
+      requestBody:
+        description: Datos del usuario a crear
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioRequest"
+      responses:
+        "201":
+          description: Creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+        "400":
+          description: Error al crear el usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+        "409":
+          description: El usuario ya existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener todos los usuarios
+      description: Se obtiene todos los usuarios de la base de datos
+      operationId: getUsers
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UsuarioResponse"
+                example:
+                  - id: 1
+                    nombre: John
+                    apellido: Doe
+                    correo: johndoe@email.com
+                  - id: 2
+                    nombre: Jane
+                    apellido: Doe
+                    correo: janedoe@email.com
+
+  /usuarios/{id}:
+    put:
+      tags:
+        - Usuarios
+      summary: Modificar un usuario
+      description: Se modifica un usuario de la base de datos
+      operationId: modifyUser
+      parameters:
+        - name: id
+          in: path
+          description: Identificador del usuario
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Datos del usuario a modificar
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioRequest"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+    get:
+      tags:
+        - Usuarios
+      summary: Obtener un usuario
+      description: Se obtiene un usuario de la base de datos
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          description: Identificador del usuario
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsuarioResponse"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+    delete:
+      tags:
+        - Usuarios
+      summary: Eliminar un usuario
+      description: Se elimina un usuario de la base de datos
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: Identificador del usuario
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionResponse"
